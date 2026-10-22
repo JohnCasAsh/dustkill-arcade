@@ -80,6 +80,18 @@
   }
   .intro h1 span { color: var(--accent); }
   .intro p { margin: 0; color: var(--muted); font-size: 1.0625rem; }
+  .back {
+    justify-self: start;
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-bottom: 10px;
+    padding: 7px 14px 7px 9px;
+    border: 1px solid var(--line); border-radius: 999px;
+    color: var(--muted); text-decoration: none;
+    font: 600 .9375rem/1 var(--font-body);
+  }
+  .back:hover { color: var(--fg); border-color: var(--muted); }
+  .back:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .back svg { width: 16px; height: 16px; }
 
   .stage {
     display: grid;
@@ -295,6 +307,7 @@
 
 <main class="wrap">
   <header class="intro">
+    <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Arcade</a>
     <h1>Blackout <span>5&times;5</span></h1>
     <p>Press a lamp to flip it and its four neighbors. Turn every lamp off in as few presses as you can.</p>
   </header>
