@@ -1,0 +1,664 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Blackout 5×5</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Unbounded:wght@600;700&family=VT323&display=swap">
+<style>
+  /* Layout: a handheld toy on a desk. The device is the one loud object; a quiet notes column sits beside it and drops below it on phones. */
+  :root {
+    --bg: #e5e8ef;
+    --surface: #f2f4f8;
+    --fg: #151927;
+    --muted: #586079;
+    --line: #c8cddb;
+    --accent: #2b3b9a;
+    --accent-ink: #ffffff;
+    --focus: #2b3b9a;
+
+    /* The device is a physical object, so it keeps its colors in both themes. */
+    --shell: #2b3b9a;
+    --shell-hi: #4458c8;
+    --shell-lo: #1b2672;
+    --pad: #172061;
+    --pad-hi: #26318c;
+    --print: #dfe4ff;
+    --lamp-off: #141b50;
+    --lamp-off-hi: #1f2869;
+    --lamp-rim: #0c1238;
+    --lamp-on: #ffbf3f;
+    --lamp-on-edge: #e8960f;
+    --lamp-core: #fff3cc;
+    --glow: rgb(255 184 56 / .55);
+    --hint: #9fe7ff;
+    --lcd: #aab595;
+    --lcd-ink: #1d2519;
+
+    --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+    --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-lcd: "VT323", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1018; --surface: #151a26; --fg: #e3e6ef; --muted: #9298ad; --line: #283045;
+      --accent: #8d9cff; --accent-ink: #0d1018; --focus: #a9b4ff;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1018; --surface: #151a26; --fg: #e3e6ef; --muted: #9298ad; --line: #283045;
+    --accent: #8d9cff; --accent-ink: #0d1018; --focus: #a9b4ff;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 400 16px/1.55 var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  [hidden] { display: none !important; }
+  button { font: inherit; }
+
+  .wrap {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding-block: 40px 72px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid;
+    gap: 32px;
+  }
+  .intro { display: grid; gap: 8px; max-width: 62ch; }
+  .intro h1 {
+    margin: 0;
+    font: 700 clamp(2rem, 5vw, 3.1rem)/1.05 var(--font-display);
+    letter-spacing: -.02em;
+    text-wrap: balance;
+  }
+  .intro h1 span { color: var(--accent); }
+  .intro p { margin: 0; color: var(--muted); font-size: 1.0625rem; }
+
+  .stage {
+    display: grid;
+    grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+    gap: 48px;
+    align-items: start;
+  }
+
+  /* Device */
+  .device {
+    width: 100%;
+    max-width: 440px;
+    display: grid;
+    gap: 18px;
+    padding: 22px 22px 26px;
+    border-radius: 30px;
+    background:
+      radial-gradient(120% 80% at 18% 0%, var(--shell-hi), transparent 60%),
+      linear-gradient(180deg, var(--shell), var(--shell-lo));
+    box-shadow:
+      inset 0 2px 0 rgb(255 255 255 / .18),
+      inset 0 -4px 0 rgb(0 0 0 / .25),
+      0 24px 40px -18px rgb(10 16 60 / .55),
+      0 2px 4px rgb(10 16 60 / .3);
+    color: var(--print);
+  }
+  .device-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-inline: 4px;
+  }
+  .brand { font: 700 .95rem/1 var(--font-display); letter-spacing: .22em; text-transform: uppercase; }
+  .model { font: 600 .7rem/1 var(--font-display); letter-spacing: .14em; text-transform: uppercase; opacity: .7; }
+
+  .lcd {
+    display: grid;
+    gap: 2px;
+    padding: 10px 14px 8px;
+    border-radius: 10px;
+    background: var(--lcd);
+    color: var(--lcd-ink);
+    box-shadow: inset 0 3px 6px rgb(0 0 0 / .35), 0 0 0 3px var(--shell-lo);
+    font-family: var(--font-lcd);
+  }
+  .lcd-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .lcd-cell { display: grid; min-width: 0; }
+  .lcd-label { font-size: 1rem; line-height: 1; text-transform: uppercase; letter-spacing: .08em; opacity: .65; }
+  .lcd-value { font-size: 2.4rem; line-height: .95; font-variant-numeric: tabular-nums; }
+  .lcd-msg {
+    min-height: 1.15em;
+    margin-top: 4px;
+    padding-top: 5px;
+    border-top: 1px dashed rgb(29 37 25 / .3);
+    font-size: 1.3rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(8px, 2.4vw, 12px);
+    padding: 14px;
+    border-radius: 18px;
+    background: var(--shell-lo);
+    box-shadow: inset 0 3px 8px rgb(0 0 0 / .4);
+  }
+  .lamp {
+    position: relative;
+    aspect-ratio: 1;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 22%;
+    cursor: pointer;
+    background: radial-gradient(circle at 50% 35%, var(--lamp-off-hi), var(--lamp-off) 72%);
+    box-shadow: inset 0 -3px 0 var(--lamp-rim), 0 2px 0 rgb(0 0 0 / .35);
+    transition: box-shadow .2s ease, transform .08s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lamp::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 50% 42%, var(--lamp-core) 0 16%, var(--lamp-on) 64%, var(--lamp-on-edge) 100%);
+    opacity: 0;
+    transition: opacity .2s ease;
+  }
+  .lamp.on { box-shadow: 0 0 20px 1px var(--glow), 0 2px 0 rgb(0 0 0 / .35); }
+  .lamp.on::before { opacity: 1; }
+  .lamp:active { transform: translateY(1px) scale(.96); }
+  .lamp:focus-visible { outline: 3px solid var(--print); outline-offset: 3px; }
+  .lamp:disabled { cursor: default; }
+  .lamp.hint::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 26%;
+    border: 2px dashed var(--hint);
+    animation: ring 1.2s ease-in-out infinite;
+  }
+  @keyframes ring { 50% { transform: scale(1.06); opacity: .5; } }
+  .grid.cleared .lamp::before { animation: wave .8s ease-out; animation-delay: calc(var(--d) * 70ms); }
+  @keyframes wave { 40% { opacity: .85; } }
+
+  .pads { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .pad {
+    padding: 12px 4px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--pad-hi), var(--pad));
+    color: var(--print);
+    font: 700 .8rem/1 var(--font-body);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .12), 0 3px 0 var(--lamp-rim);
+  }
+  .pad:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 1px 0 rgb(255 255 255 / .12), 0 1px 0 var(--lamp-rim); }
+  .pad:disabled { opacity: .45; cursor: default; }
+  .pad:focus-visible { outline: 3px solid var(--print); outline-offset: 2px; }
+  .pad.nudge { animation: nudge 1.4s ease-in-out infinite; }
+  @keyframes nudge { 50% { box-shadow: inset 0 1px 0 rgb(255 255 255 / .12), 0 3px 0 var(--lamp-rim), 0 0 0 4px var(--glow); } }
+
+  /* Notes column */
+  .notes { display: grid; gap: 30px; min-width: 0; max-width: 62ch; }
+  .block { display: grid; gap: 10px; min-width: 0; }
+  .block h2 {
+    margin: 0;
+    font: 600 .75rem/1.2 var(--font-display);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .block p { margin: 0; }
+
+  .seg {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+  }
+  .seg label { position: relative; display: grid; }
+  .seg input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .seg span {
+    display: grid;
+    gap: 2px;
+    padding: 10px 6px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 600;
+    transition: background .15s ease, color .15s ease;
+  }
+  .seg small { font-size: .8rem; font-weight: 400; color: var(--muted); }
+  .seg input:checked + span { background: var(--accent); color: var(--accent-ink); }
+  .seg input:checked + span small { color: inherit; opacity: .8; }
+  .seg input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .record { color: var(--muted); font-size: .95rem; font-variant-numeric: tabular-nums; }
+
+  .keys { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); font-size: .9rem; }
+  kbd {
+    padding: 1px 6px;
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--fg);
+    font: 600 .8rem/1.5 var(--font-body);
+  }
+
+  .chase-wrap { overflow-x: auto; }
+  .chase { border-collapse: collapse; font-size: .9rem; }
+  .chase th { padding: 0 28px 8px 0; text-align: left; font-size: .8rem; font-weight: 600; color: var(--muted); }
+  .chase td { padding: 7px 28px 7px 0; border-top: 1px solid var(--line); }
+  .dots { display: inline-flex; gap: 5px; vertical-align: middle; }
+  .dot { width: 13px; height: 13px; border-radius: 3px; background: var(--line); }
+  .dot.lit { background: var(--lamp-on); box-shadow: inset 0 0 0 1px rgb(150 90 0 / .45), 0 0 6px var(--glow); }
+  .dot.press { background: var(--accent); }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 820px) {
+    .stage { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+    .device { justify-self: center; }
+  }
+  @media (max-width: 400px) {
+    .device { padding: 16px 14px 20px; border-radius: 24px; }
+    .grid { padding: 10px; }
+    .lcd-value { font-size: 2rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<main class="wrap">
+  <header class="intro">
+    <h1>Blackout <span>5&times;5</span></h1>
+    <p>Press a lamp to flip it and its four neighbors. Turn every lamp off in as few presses as you can.</p>
+  </header>
+
+  <div class="stage">
+    <section class="device" aria-label="Game">
+      <div class="device-top">
+        <span class="brand">Blackout</span>
+        <span class="model">Model 5&times;5</span>
+      </div>
+
+      <div class="lcd">
+        <div class="lcd-row">
+          <div class="lcd-cell"><span class="lcd-label">Moves</span><span class="lcd-value" id="moves">00</span></div>
+          <div class="lcd-cell"><span class="lcd-label">Par</span><span class="lcd-value" id="par">00</span></div>
+          <div class="lcd-cell"><span class="lcd-label">Mode</span><span class="lcd-value" id="mode">EASY</span></div>
+        </div>
+        <div class="lcd-msg" id="msg">Turn every lamp off</div>
+      </div>
+
+      <div class="grid" id="grid" role="group" aria-label="Lamps, 5 by 5. Arrow keys move between lamps."></div>
+
+      <div class="pads">
+        <button type="button" class="pad" id="btn-new">New</button>
+        <button type="button" class="pad" id="btn-restart">Restart</button>
+        <button type="button" class="pad" id="btn-undo">Undo</button>
+        <button type="button" class="pad" id="btn-hint">Hint</button>
+      </div>
+    </section>
+
+    <aside class="notes">
+      <section class="block">
+        <h2>Difficulty</h2>
+        <div class="seg" role="radiogroup" aria-label="Difficulty">
+          <label><input type="radio" name="level" id="lv-easy" value="easy" checked><span>Easy<small>Par 3&ndash;5</small></span></label>
+          <label><input type="radio" name="level" id="lv-medium" value="medium"><span>Medium<small>Par 7&ndash;9</small></span></label>
+          <label><input type="radio" name="level" id="lv-hard" value="hard"><span>Hard<small>Par 11+</small></span></label>
+        </div>
+        <p class="record" id="record">No Easy puzzles cleared yet.</p>
+      </section>
+
+      <section class="block">
+        <h2>How it works</h2>
+        <p>Each press flips the lamp you touch and the lamps directly above, below, left and right of it. Pressing a lamp twice cancels out, and the order of your presses never matters.</p>
+        <p>Par is the fewest presses that clear the board. Only one in four random 5&times;5 boards can be cleared at all, so every puzzle here is made by pressing lamps on a dark grid. That guarantees a solution.</p>
+        <p>This is the Lights Out puzzle, first sold as a handheld game by Tiger Electronics in 1995.</p>
+        <p class="keys">
+          <span><kbd>Arrows</kbd> move</span>
+          <span><kbd>Space</kbd> press</span>
+          <span><kbd>U</kbd> undo</span>
+          <span><kbd>H</kbd> hint</span>
+          <span><kbd>N</kbd> new puzzle</span>
+        </p>
+      </section>
+
+      <section class="block">
+        <h2>Chasing the lights</h2>
+        <p>Work from the top row down: for every lit lamp, press the lamp directly below it. When only the bottom row is still lit, find its pattern here, press the marked lamps in the top row, and chase down once more. The board goes dark.</p>
+        <div class="chase-wrap">
+          <table class="chase" id="chase">
+            <thead><tr><th scope="col">Bottom row lit</th><th scope="col">Then press on top row</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <p id="status" class="sr-only" aria-live="polite"></p>
+</main>
+
+<script>
+(() => {
+  const N = 5, CELLS = 25;
+  const LEVELS = {
+    easy:   { label: 'EASY', name: 'Easy',   kMin: 3,  kMax: 5,  min: 3,  max: 5 },
+    medium: { label: 'MED',  name: 'Medium', kMin: 7,  kMax: 11, min: 7,  max: 9 },
+    hard:   { label: 'HARD', name: 'Hard',   kMin: 11, kMax: 20, min: 11, max: 25 }
+  };
+  const STORE_KEY = 'blackout-5x5';
+
+  const popcount = x => { let n = 0; while (x) { x &= x - 1; n++; } return n; };
+
+  // PRESS[i] is the set of lamps (as a bitmask) that flip when lamp i is pressed.
+  const PRESS = Array.from({ length: CELLS }, (_, i) => {
+    const r = Math.floor(i / N), c = i % N;
+    let m = 1 << i;
+    if (r > 0) m |= 1 << (i - N);
+    if (r < N - 1) m |= 1 << (i + N);
+    if (c > 0) m |= 1 << (i - 1);
+    if (c < N - 1) m |= 1 << (i + 1);
+    return m;
+  });
+
+  // Fewest presses that clear `board`, as a bitmask, or null if it cannot be cleared.
+  // Gauss-Jordan elimination over GF(2); bit 25 of each row holds the right-hand side.
+  function solve(board) {
+    const rows = PRESS.map((m, i) => m | (((board >> i) & 1) << CELLS));
+    const pivots = [];
+    for (let c = 0, r = 0; c < CELLS && r < CELLS; c++) {
+      let p = r;
+      while (p < CELLS && !((rows[p] >> c) & 1)) p++;
+      if (p === CELLS) continue;
+      [rows[r], rows[p]] = [rows[p], rows[r]];
+      for (let k = 0; k < CELLS; k++) if (k !== r && ((rows[k] >> c) & 1)) rows[k] ^= rows[r];
+      pivots.push(c);
+      r++;
+    }
+    for (let k = pivots.length; k < CELLS; k++) if ((rows[k] >> CELLS) & 1) return null;
+    const free = [];
+    for (let c = 0; c < CELLS; c++) if (!pivots.includes(c)) free.push(c);
+    // The 5x5 board has two free presses, so there are four solutions; keep the shortest.
+    let best = null;
+    for (let f = 0; f < (1 << free.length); f++) {
+      let x = 0;
+      free.forEach((c, j) => { if ((f >> j) & 1) x |= 1 << c; });
+      pivots.forEach((c, k) => {
+        let v = (rows[k] >> CELLS) & 1;
+        for (const fc of free) if (((rows[k] >> fc) & 1) && ((x >> fc) & 1)) v ^= 1;
+        if (v) x |= 1 << c;
+      });
+      if (best === null || popcount(x) < popcount(best)) best = x;
+    }
+    return best;
+  }
+
+  // Scramble a dark board with real presses until its par lands in the level's range.
+  function generate(levelKey) {
+    const L = LEVELS[levelKey];
+    let fallback = null;
+    for (let tries = 0; tries < 4000; tries++) {
+      const k = L.kMin + Math.floor(Math.random() * (L.kMax - L.kMin + 1));
+      const cells = [...Array(CELLS).keys()];
+      for (let i = CELLS - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cells[i], cells[j]] = [cells[j], cells[i]];
+      }
+      let board = 0;
+      for (let i = 0; i < k; i++) board ^= PRESS[cells[i]];
+      if (!board) continue;
+      const par = popcount(solve(board));
+      if (par >= L.min && par <= L.max) return { board, par };
+      if (!fallback || Math.abs(par - L.min) < Math.abs(fallback.par - L.min)) fallback = { board, par };
+    }
+    return fallback;
+  }
+
+  // Light-chasing table, worked out from the rules: for each top-row press set,
+  // chase down and record which bottom-row pattern it cancels.
+  function chaseRows() {
+    const best = new Map();
+    for (let t = 1; t < 32; t++) {
+      let b = 0;
+      for (let c = 0; c < N; c++) if ((t >> c) & 1) b ^= PRESS[c];
+      for (let i = 0; i < CELLS - N; i++) if ((b >> i) & 1) b ^= PRESS[i + N];
+      const bottom = (b >> (CELLS - N)) & 31;
+      if (bottom && (!best.has(bottom) || popcount(t) < popcount(best.get(bottom)))) best.set(bottom, t);
+    }
+    return [...best.entries()].sort((a, b) => popcount(a[0]) - popcount(b[0]) || a[0] - b[0]);
+  }
+
+  const dots = (mask, cls, verb) => {
+    const cols = [];
+    let html = '';
+    for (let c = 0; c < N; c++) {
+      const on = (mask >> c) & 1;
+      if (on) cols.push(c + 1);
+      html += `<span class="dot${on ? ' ' + cls : ''}"></span>`;
+    }
+    return `<span class="dots" role="img" aria-label="${verb} column${cols.length > 1 ? 's' : ''} ${cols.join(', ')}">${html}</span>`;
+  };
+  document.querySelector('#chase tbody').innerHTML = chaseRows()
+    .map(([bottom, top]) => `<tr><td>${dots(bottom, 'lit', 'Lit in')}</td><td>${dots(top, 'press', 'Press')}</td></tr>`)
+    .join('');
+
+  // Game state
+  const $ = id => document.getElementById(id);
+  const grid = $('grid'), lamps = [];
+  let level = 'easy', start = 0, board = 0, par = 0, history = [], hints = 0;
+  let won = false, counted = false, hintCell = -1, focusCell = 12;
+  const stats = { easy: { solved: 0, atPar: 0 }, medium: { solved: 0, atPar: 0 }, hard: { solved: 0, atPar: 0 } };
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+    if (saved && LEVELS[saved.level]) level = saved.level;
+    if (saved && saved.stats) for (const k in stats) {
+      const s = saved.stats[k];
+      if (s) stats[k] = { solved: +s.solved || 0, atPar: +s.atPar || 0 };
+    }
+  } catch (e) {}
+  const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify({ level, stats })); } catch (e) {} };
+
+  const msg = t => { $('msg').textContent = t; };
+  const announce = t => { $('status').textContent = t; };
+  const litMsg = () => { const n = popcount(board); msg(`${n} lamp${n === 1 ? '' : 's'} lit`); };
+  const pad2 = n => String(n).padStart(2, '0');
+
+  for (let i = 0; i < CELLS; i++) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'lamp';
+    b.id = 'lamp-' + i;
+    b.style.setProperty('--d', Math.floor(i / N) + (i % N));
+    b.tabIndex = i === focusCell ? 0 : -1;
+    b.addEventListener('click', () => press(i));
+    b.addEventListener('focus', () => setFocus(i, false));
+    grid.appendChild(b);
+    lamps.push(b);
+  }
+
+  function setFocus(i, move) {
+    lamps[focusCell].tabIndex = -1;
+    focusCell = i;
+    lamps[i].tabIndex = 0;
+    if (move) lamps[i].focus();
+  }
+
+  grid.addEventListener('keydown', e => {
+    const r = Math.floor(focusCell / N), c = focusCell % N;
+    const to = { ArrowUp: [r - 1, c], ArrowDown: [r + 1, c], ArrowLeft: [r, c - 1], ArrowRight: [r, c + 1], Home: [r, 0], End: [r, N - 1] }[e.key];
+    if (!to) return;
+    e.preventDefault();
+    const [nr, nc] = to;
+    if (nr >= 0 && nr < N && nc >= 0 && nc < N) setFocus(nr * N + nc, true);
+  });
+
+  function clearHint() {
+    if (hintCell >= 0) lamps[hintCell].classList.remove('hint');
+    hintCell = -1;
+  }
+
+  function replayWave() {
+    grid.classList.remove('cleared');
+    void grid.offsetWidth;
+    grid.classList.add('cleared');
+  }
+
+  function press(i) {
+    if (won) return;
+    board ^= PRESS[i];
+    history.push(i);
+    clearHint();
+    if (board) litMsg(); else win();
+    render();
+  }
+
+  function win() {
+    won = true;
+    const moves = history.length;
+    if (!counted) {
+      counted = true;
+      stats[level].solved++;
+      if (moves === par && !hints) stats[level].atPar++;
+      save();
+    }
+    msg(hints ? `Clear in ${moves}, with hints` : moves === par ? 'Clear! Matched par' : `Clear in ${moves}. Par ${par}`);
+    announce(`Board cleared in ${moves} moves. Par was ${par}. Press N for a new puzzle.`);
+    replayWave();
+  }
+
+  function undo() {
+    if (!history.length) return msg('Nothing to undo');
+    won = false;
+    grid.classList.remove('cleared');
+    board ^= PRESS[history.pop()];
+    clearHint();
+    litMsg();
+    render();
+  }
+
+  function hint() {
+    if (won) return msg('Board is already dark');
+    const sol = solve(board);
+    if (!sol) return;
+    let i = 0;
+    while (!((sol >> i) & 1)) i++;
+    clearHint();
+    hintCell = i;
+    hints++;
+    lamps[i].classList.add('hint');
+    const left = popcount(sol);
+    msg(`Ringed lamp. ${left} to go`);
+    announce(`Hint: press row ${Math.floor(i / N) + 1}, column ${i % N + 1}. ${left} presses left.`);
+    render();
+  }
+
+  function restart() {
+    if (!history.length) return msg('Already at the start');
+    board = start;
+    history = [];
+    won = false;
+    clearHint();
+    grid.classList.remove('cleared');
+    msg('Back to the start');
+    render();
+  }
+
+  function newPuzzle() {
+    const p = generate(level);
+    start = board = p.board;
+    par = p.par;
+    history = [];
+    hints = 0;
+    won = false;
+    counted = false;
+    clearHint();
+    grid.classList.remove('cleared');
+    litMsg();
+    render();
+  }
+
+  function render() {
+    for (let i = 0; i < CELLS; i++) {
+      const on = (board >> i) & 1;
+      lamps[i].classList.toggle('on', !!on);
+      lamps[i].setAttribute('aria-label', `Row ${Math.floor(i / N) + 1}, column ${i % N + 1}, ${on ? 'lit' : 'dark'}${i === hintCell ? ', hint' : ''}`);
+      lamps[i].setAttribute('aria-disabled', won ? 'true' : 'false');
+    }
+    $('moves').textContent = pad2(history.length);
+    $('par').textContent = pad2(par);
+    $('mode').textContent = LEVELS[level].label;
+    $('btn-new').classList.toggle('nudge', won);
+    const s = stats[level], name = LEVELS[level].name;
+    $('record').textContent = s.solved
+      ? `${name}: ${s.solved} cleared, ${s.atPar} at par.`
+      : `No ${name} puzzles cleared yet.`;
+    document.querySelector(`input[name="level"][value="${level}"]`).checked = true;
+  }
+
+  $('btn-new').addEventListener('click', newPuzzle);
+  $('btn-restart').addEventListener('click', restart);
+  $('btn-undo').addEventListener('click', undo);
+  $('btn-hint').addEventListener('click', hint);
+  document.querySelectorAll('input[name="level"]').forEach(r => r.addEventListener('change', () => {
+    level = r.value;
+    save();
+    newPuzzle();
+  }));
+
+  document.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    const mod = e.ctrlKey || e.metaKey;
+    if (e.altKey || (mod && k !== 'z')) return;
+    const act = { z: mod ? undo : null, u: undo, h: hint, n: newPuzzle, r: restart }[k];
+    if (!act) return;
+    e.preventDefault();
+    act();
+  });
+
+  // Keep the current puzzle when the page is updated while open.
+  const hot = window.claude && window.claude.hot;
+  if (hot && hot.snapshot) hot.snapshot(() => ({ level, start, board, par, history, hints, won, counted }));
+  function boot(data) {
+    if (data && typeof data.board === 'number' && LEVELS[data.level]) {
+      ({ level, start, board, par, hints, won, counted } = data);
+      history = Array.isArray(data.history) ? data.history.slice() : [];
+      if (won) msg('Board is dark'); else litMsg();
+      render();
+    } else {
+      newPuzzle();
+    }
+  }
+  if (hot && hot.ready) hot.ready(boot); else boot((hot && hot.data) || {});
+})();
+</script>
+
+</body></html>
