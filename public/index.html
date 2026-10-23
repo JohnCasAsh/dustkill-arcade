@@ -115,7 +115,6 @@
     color: var(--muted); background: var(--panel-2); border: 1px solid var(--line);
     border-radius: 6px; padding: 3px 8px;
   }
-  .tags .warn { color: var(--sand); border-color: color-mix(in srgb, var(--sand) 40%, transparent); }
   .tags .new { color: #0a0a14; font-weight: 700; background: linear-gradient(90deg, #3ef0ff, #ff4fd8); border-color: transparent; }
 
   .title { margin: 0; font-weight: 400; line-height: 1; }
@@ -340,13 +339,13 @@
         </svg>
       </div>
       <div class="info">
-        <div class="tags"><span>Action</span><span>3D shooter</span><span class="warn" id="desktop-note" hidden>Best on desktop</span></div>
+        <div class="tags"><span>Action</span><span>3D shooter</span><span>Phone friendly</span></div>
         <h2 class="title">Dustfall</h2>
         <p class="desc">A 5v5 tactical shooter in the streets of Old Town. Fight for the Vanguard against the Jackals in Team Deathmatch, or survive one-life rounds in Elimination and spend your cash on gear.</p>
         <dl class="meta">
           <div><dt>Modes</dt><dd>Deathmatch, Elimination</dd></div>
           <div><dt>Teams</dt><dd>3v3 to 7v7 with bots</dd></div>
-          <div><dt>Controls</dt><dd>Keyboard + mouse</dd></div>
+          <div><dt>Controls</dt><dd>Mouse, keys or touch</dd></div>
         </dl>
         <span class="play">Play Dustfall <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </div>
@@ -381,10 +380,6 @@
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
-
-  if (matchMedia('(hover: none) and (pointer: coarse)').matches) {
-    document.getElementById('desktop-note').hidden = false;
-  }
 
   (function miniBlackout() {
     const boardEl = document.getElementById('mini-board');
