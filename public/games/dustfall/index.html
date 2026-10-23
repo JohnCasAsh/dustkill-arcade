@@ -594,7 +594,7 @@ body.touch #xpfeed { left: calc(50% + 34px); }
       <label class="set-row" for="setFov"><span>Field of view</span><input type="range" id="setFov" min="65" max="105" step="1"><output id="outFov"></output></label>
       <label class="set-row" for="setVol"><span>Volume</span><input type="range" id="setVol" min="0" max="1" step="0.05"><output id="outVol"></output></label>
       <label class="set-row" for="setQuality"><span>Graphics</span>
-        <select id="setQuality"><option value="0">Low (fastest)</option><option value="1">Medium</option><option value="2">High</option></select><output></output></label>
+        <select id="setQuality"><option value="3">Auto (adapts)</option><option value="0">Low (fastest)</option><option value="1">Medium</option><option value="2">High</option></select><output></output></label>
       <label class="set-row check" for="setInvert"><span>Invert mouse Y</span><input type="checkbox" id="setInvert"><output></output></label>
       <label class="set-row check" for="setFps"><span>Show FPS counter</span><input type="checkbox" id="setFps"><output></output></label>
       <button class="btn btn-primary" id="btnSettingsDone">DONE</button>
@@ -781,9 +781,9 @@ const GFX = {
 // ------------------------------------------------------------------ settings
 const Settings = {
   sens: 1.0, fov: 82, volume: 0.7, quality: 1, invertY: false, showFps: false,
-  mode: 'tdm', diff: 1, teamSize: 5, loadout: 0, outfit: 0, touch: 0,
+  mode: 'tdm', diff: 1, teamSize: 5, loadout: 0, outfit: 0, touch: 0, gfxRev: 0,
   loaded: false,
-  KEYS: ['sens', 'fov', 'volume', 'quality', 'invertY', 'showFps', 'mode', 'diff', 'teamSize', 'loadout', 'outfit', 'touch'],
+  KEYS: ['sens', 'fov', 'volume', 'quality', 'invertY', 'showFps', 'mode', 'diff', 'teamSize', 'loadout', 'outfit', 'touch', 'gfxRev'],
   load() {
     try {
       const raw = localStorage.getItem('dustfall.settings');
@@ -5282,19 +5282,75 @@ function initGraphics() {
   window.addEventListener('resize', onResize);
 }
 
+// Graphics setting 3 ("Auto") picks a tier from this ladder and moves along it with the frame rate:
+// sharp on phones that can take it, smooth on the ones that cannot.
+const AutoGfx = {
+  TIERS: [
+    { ratio: 0.75, shadows: false, map: 1024 },
+    { ratio: 1.0, shadows: false, map: 1024 },
+    { ratio: 1.0, shadows: true, map: 1024 },
+    { ratio: 1.35, shadows: true, map: 2048 },
+    { ratio: 1.7, shadows: true, map: 2048 },
+    { ratio: 2.0, shadows: true, map: 2048 },
+  ],
+  tier: 3, maxTier: 5, frames: 0, time: 0, good: 0, cooldown: 1, drops: 0, lastFps: 0, prevTier: -1, locked: false,
+
+  reset() {
+    const dpr = window.devicePixelRatio || 1;
+    this.maxTier = 2;
+    this.TIERS.forEach((t, i) => { if (t.ratio <= dpr + 0.01) this.maxTier = Math.max(this.maxTier, i); });
+    this.tier = Math.min(3, this.maxTier);
+    this.frames = 0; this.time = 0; this.good = 0; this.cooldown = 1; this.drops = 0; this.prevTier = -1; this.locked = false;
+  },
+
+  // Called every frame with the real (unclamped) frame time; judges the frame rate every 2 s.
+  sample(rawDt) {
+    if (Settings.quality !== 3 || document.hidden || !(rawDt > 0) || rawDt > 0.5) return;
+    this.frames++; this.time += rawDt;
+    if (this.time < 2) return;
+    const fps = this.frames / this.time;
+    this.frames = 0; this.time = 0;
+    if (this.cooldown > 0) {
+      this.cooldown--;
+      // Judged on the second window after a step down (the first one absorbs shader rebuild hitches).
+      // A step down that bought nothing means the frame rate is capped (e.g. battery saver), so undo it and stop lowering.
+      if (this.cooldown === 0 && this.prevTier > this.tier) {
+        if (fps < this.lastFps * 1.12) { this.locked = true; this.cooldown = 1; this.set(this.prevTier); }
+        this.prevTier = -1;
+      }
+      return;
+    }
+    if (fps < 40 && this.tier > 0 && !this.locked) {
+      this.prevTier = this.tier; this.lastFps = fps;
+      this.drops++; this.good = 0; this.cooldown = 2;
+      this.set(this.tier - 1);
+    } else if (fps > 56 && this.tier < this.maxTier) {
+      if (++this.good >= (this.drops ? 4 : 2)) { this.good = 0; this.cooldown = 1; this.set(this.tier + 1); }
+    } else this.good = 0;
+  },
+  set(t) { this.tier = clamp(t, 0, this.maxTier); applyQuality(); },
+};
+
+function gfxProfile() {
+  const q = Settings.quality, dpr = window.devicePixelRatio || 1;
+  if (q === 3) { const t = AutoGfx.TIERS[AutoGfx.tier]; return { ratio: Math.min(dpr, t.ratio), shadows: t.shadows, map: t.map, soft: false }; }
+  if (q === 0) return { ratio: Math.min(dpr, 1) * 0.8, shadows: false, map: 2048, soft: true };
+  if (q === 1) return { ratio: Math.min(dpr, 1.25), shadows: true, map: 2048, soft: true };
+  return { ratio: Math.min(dpr, 2), shadows: true, map: 4096, soft: true };
+}
+
 function applyQuality() {
-  const q = Settings.quality, r = GFX.renderer, dpr = window.devicePixelRatio || 1;
-  r.setPixelRatio(q === 0 ? Math.min(dpr, 1) * 0.8 : q === 1 ? Math.min(dpr, 1.25) : Math.min(dpr, 2));
-  const wantShadows = q > 0;
-  const size = q === 2 ? 4096 : 2048;
-  if (GFX.sun.shadow.mapSize.x !== size) {
-    GFX.sun.shadow.mapSize.set(size, size);
+  const g = gfxProfile(), r = GFX.renderer;
+  r.setPixelRatio(g.ratio);
+  const type = g.soft ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+  let recompile = false;
+  if (GFX.sun.shadow.mapSize.x !== g.map || r.shadowMap.type !== type) {
+    GFX.sun.shadow.mapSize.set(g.map, g.map);
     if (GFX.sun.shadow.map) { GFX.sun.shadow.map.dispose(); GFX.sun.shadow.map = null; }
+    if (r.shadowMap.type !== type) { r.shadowMap.type = type; recompile = true; }
   }
-  if (r.shadowMap.enabled !== wantShadows) {
-    r.shadowMap.enabled = wantShadows;
-    GFX.scene.traverse(o => { if (o.material) [].concat(o.material).forEach(m => { m.needsUpdate = true; }); });
-  }
+  if (r.shadowMap.enabled !== g.shadows) { r.shadowMap.enabled = g.shadows; recompile = true; }
+  if (recompile) GFX.scene.traverse(o => { if (o.material) [].concat(o.material).forEach(m => { m.needsUpdate = true; }); });
   onResize();
 }
 
@@ -5424,7 +5480,7 @@ function bindUI() {
   $('setSens').addEventListener('input', e => { Settings.sens = +e.target.value; refreshSettingOutputs(); });
   $('setFov').addEventListener('input', e => { Settings.fov = +e.target.value; refreshSettingOutputs(); });
   $('setVol').addEventListener('input', e => { Settings.volume = +e.target.value; Sfx.setVolume(Settings.volume); refreshSettingOutputs(); });
-  $('setQuality').addEventListener('change', e => { Settings.quality = +e.target.value; applyQuality(); });
+  $('setQuality').addEventListener('change', e => { Settings.quality = +e.target.value; AutoGfx.reset(); applyQuality(); });
   $('setInvert').addEventListener('change', e => { Settings.invertY = e.target.checked; });
   $('setFps').addEventListener('change', e => { Settings.showFps = e.target.checked; $('fps').hidden = !Settings.showFps; });
   $('fps').hidden = !Settings.showFps;
@@ -5515,6 +5571,7 @@ function frame(now) {
   requestAnimationFrame(frame);
   let dt = (now - App.lastT) / 1000;
   App.lastT = now;
+  AutoGfx.sample(dt);
   if (!(dt > 0)) dt = 1 / 60;
   dt = Math.min(dt, 0.05);
   const playing = Game.state === 'play';
@@ -5552,7 +5609,10 @@ function boot() {
   if (!window.THREE) { showFatal('The 3D engine could not load. Check your internet connection, then reload the page.'); return; }
   try {
     Settings.load();
-    if (!Settings.loaded && TouchUI.detect()) Settings.quality = 0; // phones start on the fastest graphics
+    // Phones default to Auto graphics. gfxRev 2 also moves phones that were saved on the old Low default.
+    if (TouchUI.detect() && (!Settings.loaded || (Settings.gfxRev < 2 && Settings.quality === 0))) Settings.quality = 3;
+    Settings.gfxRev = 2;
+    AutoGfx.reset();
     initGraphics();
     buildTextures();
     buildMap();
