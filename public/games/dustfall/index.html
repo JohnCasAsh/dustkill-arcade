@@ -192,8 +192,8 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
 .btn-link { color: var(--bone); text-decoration: none; }
 .btn-link svg { width: 16px; height: 16px; flex: none; }
 
-#scoreboard, #buymenu, #classmenu, #pausemenu, #endscreen, #settings, #clickprompt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px max(16px, var(--safe-r)) 16px max(16px, var(--safe-l)); }
-#pausemenu, #settings, #endscreen { background: rgba(5, 7, 9, 0.55); }
+#scoreboard, #buymenu, #classmenu, #pausemenu, #endscreen, #settings, #locker, #clickprompt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px max(16px, var(--safe-r)) 16px max(16px, var(--safe-l)); }
+#pausemenu, #settings, #endscreen, #locker { background: rgba(5, 7, 9, 0.55); }
 #buymenu, #classmenu { background: rgba(5, 7, 9, 0.35); }
 
 .board { width: min(980px, 100%); background: rgba(13, 16, 19, 0.9); border: 1px solid var(--line); padding: 18px 20px; }
@@ -323,6 +323,138 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
   .load-bar i { animation: none; width: 100%; }
   .xp { animation: none; opacity: 1; }
 }
+
+/* ---------------------------------------------------------------- OVERLAY STACKING */
+#settings, #locker { z-index: 4; }
+#rotate { z-index: 6; }
+#loading { z-index: 8; }
+#scoreboard { pointer-events: none; }
+.buy-panel, .class-panel, .settings-panel, .pause-panel, .locker-panel, .end-panel { max-height: 100%; overflow-y: auto; }
+.panel-x { margin-left: 8px; padding: 8px 16px; font-size: 15px; }
+#rotate { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(5, 7, 9, 0.88); text-align: center; }
+
+/* ---------------------------------------------------------------- LOCKER */
+.locker-row { gap: 10px; }
+.pick { flex: 1 1 230px; display: flex; flex-direction: column; gap: 7px; min-width: 0; padding: 12px 14px; text-align: left;
+  background: rgba(23, 28, 33, 0.85); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; }
+.pick:hover { border-color: var(--sand); }
+.pick .menu-label { margin: 0; }
+.pick-name { display: flex; align-items: center; gap: 8px; font: 700 19px/1 var(--font-ui); letter-spacing: 0.1em; color: var(--sand); }
+.pick-sub { font: 500 14px/1.25 var(--font-ui); color: var(--dust); }
+.pick-swatch { flex: none; width: 18px; height: 18px; border-radius: 3px; border: 1px solid var(--line-strong); }
+
+.locker-panel { width: min(1020px, 100%); }
+.locker-panel .panel-head { flex-wrap: wrap; align-items: center; }
+#lockerTabs button { padding: 9px 16px; }
+.locker-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.lo-card { display: flex; flex-direction: column; gap: 6px; padding: 12px; text-align: left; background: var(--ink-2); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; }
+.lo-card:hover { border-color: var(--bone); }
+.lo-card.sel { border-color: var(--sand); background: #221d15; }
+.lo-card .cn { font: 400 20px/1 var(--font-display); color: var(--bone); }
+.lo-card.sel .cn { color: var(--sand); }
+.lo-card .cw { font: 600 15px/1.25 var(--font-ui); color: var(--bone); }
+.lo-card .cd { font: 500 13px/1.3 var(--font-ui); color: var(--dust); }
+.wstats { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 28px; margin-top: 16px; padding: 14px 16px; background: rgba(23, 28, 33, 0.7); border: 1px solid var(--line); }
+.wstats h3 { grid-column: 1 / -1; margin: 0 0 2px; font: 700 16px/1 var(--font-ui); letter-spacing: 0.16em; color: var(--sand); }
+.wstat { display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 10px; font: 600 13px/1 var(--font-ui); letter-spacing: 0.14em; color: var(--dust); }
+.wstat i { display: block; height: 6px; background: rgba(236, 228, 212, 0.12); }
+.wstat i b { display: block; height: 100%; background: var(--bone); }
+.wnote { grid-column: 1 / -1; font: 600 14px/1.3 var(--font-ui); letter-spacing: 0.06em; color: var(--dust); }
+
+.outfit-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 18px; align-items: start; }
+.outfit-hero { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px; text-align: center; background: radial-gradient(circle at 50% 40%, rgba(226, 171, 90, 0.16), rgba(23, 28, 33, 0.7) 70%); border: 1px solid var(--line); }
+#outfitPreview svg { display: block; width: 150px; height: 250px; }
+.outfit-name { font: 400 22px/1.05 var(--font-display); color: var(--sand); }
+.outfit-desc { font: 500 14px/1.3 var(--font-ui); color: var(--dust); }
+.outfit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 10px; }
+.of-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 6px 10px; background: var(--ink-2); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; }
+.of-card:hover { border-color: var(--bone); }
+.of-card.sel { border-color: var(--sand); background: #221d15; }
+.of-card svg { width: 64px; height: 106px; }
+.of-card span { font: 700 13px/1.1 var(--font-ui); letter-spacing: 0.08em; text-align: center; }
+.of-card.sel span { color: var(--sand); }
+
+/* ---------------------------------------------------------------- TOUCH CONTROLS */
+.touch-keys { display: none; }
+body.touch .keys:not(.touch-keys) { display: none; }
+body.touch .touch-keys { display: grid; }
+body.touch .key-hint { display: none; }
+
+#touch { position: absolute; inset: 0; touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.t-btn { position: absolute; display: grid; place-items: center; width: 56px; height: 56px; padding: 0; border-radius: 50%;
+  border: 2px solid rgba(236, 228, 212, 0.38); background: rgba(13, 16, 19, 0.45); color: var(--bone);
+  font: 700 12px/1 var(--font-ui); letter-spacing: 0.1em; touch-action: none; cursor: pointer; }
+.t-btn svg { width: 55%; height: 55%; }
+.t-btn.press, .t-btn.on { background: rgba(226, 171, 90, 0.88); border-color: var(--sand); color: #16110a; }
+.t-btn.off { opacity: 0.35; }
+.t-fire { width: 88px; height: 88px; right: calc(var(--safe-r) + 28px); bottom: calc(var(--safe-b) + 36px); border-color: rgba(255, 91, 78, 0.75); background: rgba(255, 91, 78, 0.22); }
+.t-fire.on { background: rgba(255, 91, 78, 0.8); border-color: var(--red); color: #fff; }
+.t-jump { right: calc(var(--safe-r) + 142px); bottom: calc(var(--safe-b) + 18px); }
+.t-crouch { width: 52px; height: 52px; right: calc(var(--safe-r) + 210px); bottom: calc(var(--safe-b) + 14px); font-size: 11px; letter-spacing: 0.04em; }
+.t-aim { width: 60px; height: 60px; right: calc(var(--safe-r) + 136px); bottom: calc(var(--safe-b) + 94px); }
+.t-reload { width: 52px; height: 52px; right: calc(var(--safe-r) + 72px); bottom: calc(var(--safe-b) + 144px); font-size: 11px; letter-spacing: 0.04em; }
+.t-nade { width: 48px; height: 48px; right: calc(var(--safe-r) + 12px); bottom: calc(var(--safe-b) + 144px); font-size: 11px; grid-template-rows: auto auto; align-content: center; gap: 2px; }
+.t-nade i { font-style: normal; font-size: 14px; }
+.t-top { position: absolute; top: calc(var(--safe-t) + 10px); right: calc(var(--safe-r) + 10px); display: flex; gap: 8px; }
+.t-top .t-btn { position: static; border-radius: 4px; }
+.t-sq { width: 42px; height: 42px; }
+.t-pill { width: auto; height: 42px; padding: 0 14px; font-size: 14px; letter-spacing: 0.14em; color: var(--sand); border-color: rgba(226, 171, 90, 0.6); }
+.t-slots { position: absolute; left: 42%; bottom: calc(var(--safe-b) + 10px); transform: translateX(-50%); display: flex; gap: 6px; }
+.t-slot { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 70px; height: 50px; padding: 0 10px;
+  border: 1px solid rgba(236, 228, 212, 0.3); border-radius: 3px; background: rgba(13, 16, 19, 0.55); color: var(--dust); touch-action: none; cursor: pointer; }
+.t-slot b { font: 700 14px/1 var(--font-ui); letter-spacing: 0.08em; color: var(--bone); }
+.t-slot span { font: 700 12px/1 var(--font-ui); letter-spacing: 0.06em; }
+.t-slot.cur { border-color: var(--sand); background: rgba(41, 33, 21, 0.85); }
+.t-slot.cur b { color: var(--sand); }
+.t-slot.cur span { color: var(--bone); font-size: 15px; }
+.t-slot.empty { opacity: 0.3; }
+.t-slot.press { background: rgba(226, 171, 90, 0.5); }
+.t-stick { position: absolute; left: calc(var(--safe-l) + 110px); top: calc(100% - var(--safe-b) - 100px); width: 124px; height: 124px; margin: -62px 0 0 -62px;
+  border-radius: 50%; border: 2px solid rgba(236, 228, 212, 0.28); background: rgba(13, 16, 19, 0.22); pointer-events: none; opacity: 0.55; }
+.t-stick.live { opacity: 1; }
+.t-knob { position: absolute; left: 36px; top: 36px; width: 52px; height: 52px; border-radius: 50%; background: rgba(236, 228, 212, 0.6); }
+.t-stick.sprint .t-knob { background: var(--sand); }
+.t-stick span { position: absolute; left: 0; right: 0; top: calc(100% + 6px); text-align: center; font: 700 11px/1 var(--font-ui); letter-spacing: 0.24em; color: rgba(236, 228, 212, 0.55); }
+.t-stick.live span { display: none; }
+#touch.dead .t-fire, #touch.dead .t-aim, #touch.dead .t-jump, #touch.dead .t-crouch, #touch.dead .t-reload, #touch.dead .t-nade, #touch.dead .t-slots, #touch.dead .t-stick { display: none; }
+
+/* HUD rearranged so it clears the thumbs */
+body.touch #compass, body.touch #weaponbox { display: none; }
+body.touch #radar { width: 108px; height: 108px; left: calc(var(--safe-l) + 10px); top: calc(var(--safe-t) + 10px); }
+body.touch #vitals { left: calc(var(--safe-l) + 10px); top: calc(var(--safe-t) + 128px); bottom: auto; width: 150px; padding: 6px 10px 8px; }
+body.touch #hpNum { font-size: 28px; }
+body.touch #moneyLine { font-size: 19px; margin-top: 4px; }
+body.touch #streakbox { left: calc(var(--safe-l) + 126px); right: auto; top: calc(var(--safe-t) + 10px); bottom: auto; align-items: flex-start; gap: 3px; }
+body.touch .streak { font-size: 11px; padding: 3px 6px; gap: 5px; }
+body.touch .streak b { font-size: 13px; }
+body.touch #killfeed { top: calc(var(--safe-t) + 62px); right: calc(var(--safe-r) + 10px); }
+body.touch #killfeed .kf:nth-last-child(n+5) { display: none; }
+body.touch .kf { font-size: 13px; padding: 3px 8px; }
+body.touch #hintline { bottom: calc(var(--safe-b) + 72px); left: 42%; font-size: 13px; }
+body.touch #xpfeed { left: calc(50% + 34px); }
+@media (max-height: 500px) {
+  .menu-left { gap: 12px; }
+  .brand h1 { margin-top: 4px; font-size: 40px; }
+  .brand-sub, .mode-desc { display: none; }
+  .mode-cards { grid-template-columns: 1fr 1fr; }
+  .mode-card { padding: 10px 12px; }
+  .mode-name { font-size: 16px; }
+  .pick { padding: 8px 12px; gap: 5px; }
+  .menu-actions { position: sticky; bottom: 0; z-index: 1; padding: 8px 0; margin-bottom: -8px; background: linear-gradient(transparent, rgba(8, 10, 12, 0.92) 30%); }
+  .btn-deploy { padding: 10px 32px; font-size: 20px; }
+  #announceBig { font-size: 36px; }
+  #announceSmall { font-size: 14px; }
+  #scorebar { min-width: 280px; }
+  .sb-score { font-size: 22px; }
+  .panel { padding: 14px 16px; }
+  .panel h2 { font-size: 24px; }
+  .outfit-layout { grid-template-columns: 150px minmax(0, 1fr); }
+  #outfitPreview svg { width: 96px; height: 160px; }
+}
+@media (max-width: 640px) {
+  .outfit-layout { grid-template-columns: minmax(0, 1fr); }
+  .wstats { grid-template-columns: minmax(0, 1fr); }
+}
 </style>
 <div id="app">
   <div id="stage"></div>
@@ -372,6 +504,27 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
     <div id="fps" hidden></div>
   </div>
 
+  <!-- ===================== TOUCH CONTROLS ===================== -->
+  <div id="touch" hidden>
+    <div id="tStick" class="t-stick"><div class="t-knob"></div><span>MOVE</span></div>
+    <div class="t-top">
+      <button class="t-btn t-pill" data-act="ctx" id="tCtx" type="button">GUNS</button>
+      <button class="t-btn t-sq" data-act="board" type="button" aria-label="Scoreboard"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5h12M4 10h12M4 15h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <button class="t-btn t-sq" data-act="pause" type="button" aria-label="Pause"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="4" width="3.4" height="12" rx="1" fill="currentColor"/><rect x="11.6" y="4" width="3.4" height="12" rx="1" fill="currentColor"/></svg></button>
+    </div>
+    <div class="t-slots">
+      <button class="t-slot" data-act="slot" data-slot="0" type="button"><b>PRIMARY</b><span></span></button>
+      <button class="t-slot" data-act="slot" data-slot="1" type="button"><b>SIDEARM</b><span></span></button>
+      <button class="t-slot" data-act="slot" data-slot="2" type="button"><b>KNIFE</b><span></span></button>
+    </div>
+    <button class="t-btn t-fire" data-act="fire" type="button" aria-label="Fire"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="9" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M20 4v8M20 28v8M4 20h8M28 20h8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+    <button class="t-btn t-aim" data-act="aim" id="tAim" type="button">AIM</button>
+    <button class="t-btn t-jump" data-act="jump" type="button">JUMP</button>
+    <button class="t-btn t-crouch" data-act="crouch" id="tCrouch" type="button">CROUCH</button>
+    <button class="t-btn t-reload" data-act="reload" type="button">RELOAD</button>
+    <button class="t-btn t-nade" data-act="nade" id="tNade" type="button">NADE<i id="tNadeN">1</i></button>
+  </div>
+
   <!-- ===================== OVERLAYS ===================== -->
   <div id="scoreboard" hidden>
     <div class="board">
@@ -385,15 +538,15 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
 
   <div id="buymenu" hidden>
     <div class="panel buy-panel">
-      <div class="panel-head"><h2>ARMORY</h2><span id="buyMoney">$800</span><span id="buyTime">20s</span></div>
+      <div class="panel-head"><h2>ARMORY</h2><span id="buyMoney">$800</span><span id="buyTime">20s</span><button class="btn btn-ghost panel-x" data-close="buy" type="button">CLOSE</button></div>
       <div id="buyGrid"></div>
-      <p class="panel-foot">Click an item or press its key. <kbd>B</kbd> or <kbd>Esc</kbd> closes the armory.</p>
+      <p class="panel-foot key-hint">Click an item or press its key. <kbd>B</kbd> or <kbd>Esc</kbd> closes the armory.</p>
     </div>
   </div>
 
   <div id="classmenu" hidden>
     <div class="panel class-panel">
-      <div class="panel-head"><h2>CHOOSE LOADOUT</h2><span class="muted">Press 1&ndash;5 or click</span></div>
+      <div class="panel-head"><h2>CHOOSE LOADOUT</h2><span class="muted key-hint">Press 1&ndash;5 or click</span><button class="btn btn-ghost panel-x" data-close="class" type="button">CLOSE</button></div>
       <div id="classGrid"></div>
       <p class="panel-foot" id="classFoot">Your loadout applies on your next spawn.</p>
     </div>
@@ -413,6 +566,7 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
       <h2>PAUSED</h2>
       <button class="btn btn-primary" id="btnResume">RESUME</button>
       <button class="btn" id="btnPauseLoadout">CHANGE LOADOUT</button>
+      <button class="btn" id="btnPauseOutfit">CHANGE OUTFIT</button>
       <button class="btn" id="btnPauseSettings">SETTINGS</button>
       <button class="btn btn-ghost" id="btnQuit">QUIT TO MENU</button>
       <a class="btn btn-ghost btn-link" href="/">QUIT TO ARCADE</a>
@@ -434,7 +588,9 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
   <div id="settings" hidden>
     <div class="panel settings-panel">
       <h2>SETTINGS</h2>
-      <label class="set-row" for="setSens"><span>Mouse sensitivity</span><input type="range" id="setSens" min="0.2" max="3" step="0.05"><output id="outSens"></output></label>
+      <label class="set-row" for="setTouch"><span>Touch controls</span>
+        <select id="setTouch"><option value="0">Auto</option><option value="1">On</option><option value="2">Off</option></select><output></output></label>
+      <label class="set-row" for="setSens"><span>Look sensitivity</span><input type="range" id="setSens" min="0.2" max="3" step="0.05"><output id="outSens"></output></label>
       <label class="set-row" for="setFov"><span>Field of view</span><input type="range" id="setFov" min="65" max="105" step="1"><output id="outFov"></output></label>
       <label class="set-row" for="setVol"><span>Volume</span><input type="range" id="setVol" min="0" max="1" step="0.05"><output id="outVol"></output></label>
       <label class="set-row" for="setQuality"><span>Graphics</span>
@@ -483,12 +639,25 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
         </div>
       </div>
 
+      <div class="menu-row locker-row">
+        <button class="pick" id="pickLoadout" type="button">
+          <span class="menu-label">LOADOUT</span>
+          <span class="pick-name" id="pickLoadoutName">ASSAULT</span>
+          <span class="pick-sub" id="pickLoadoutSub">KR-47 RIFLE · P-9 PISTOL</span>
+        </button>
+        <button class="pick" id="pickOutfit" type="button">
+          <span class="menu-label">OUTFIT</span>
+          <span class="pick-name"><i class="pick-swatch" id="pickOutfitSwatch"></i><span id="pickOutfitName">VANGUARD STANDARD</span></span>
+          <span class="pick-sub">Tap to change your uniform</span>
+        </button>
+      </div>
+
       <div class="menu-actions">
         <button class="btn btn-deploy" id="btnDeploy">DEPLOY</button>
         <button class="btn btn-ghost" id="btnMenuSettings">SETTINGS</button>
         <a class="btn btn-ghost btn-link" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg>ARCADE</a>
       </div>
-      <p id="touchNote" hidden>Dustfall needs a keyboard and mouse. Open it on a computer to play.</p>
+      <p id="touchNote" hidden>Touch controls are on. Turn your phone sideways to play.</p>
     </div>
 
     <div class="menu-right">
@@ -509,9 +678,44 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
           <dt><kbd>Tab</kbd></dt><dd>Scoreboard</dd>
           <dt><kbd>Esc</kbd></dt><dd>Pause</dd>
         </dl>
+        <dl class="keys touch-keys">
+          <dt><kbd>Left side</kbd></dt><dd>Drag to move · push far forward to sprint</dd>
+          <dt><kbd>Right side</kbd></dt><dd>Drag to look around</dd>
+          <dt><kbd>Fire</kbd></dt><dd>Hold to shoot · drag it to aim while firing</dd>
+          <dt><kbd>Aim</kbd></dt><dd>Toggle aim down sights / scope</dd>
+          <dt><kbd>Gun slots</kbd></dt><dd>Tap to switch primary, sidearm, knife</dd>
+          <dt><kbd>Guns</kbd> <kbd>Buy</kbd></dt><dd>Change loadout · open the armory</dd>
+          <dt><kbd>Jump</kbd> <kbd>Crouch</kbd></dt><dd>Crouch toggles on and off</dd>
+          <dt><kbd>Reload</kbd> <kbd>Nade</kbd></dt><dd>Reload · throw a frag grenade</dd>
+        </dl>
       </div>
     </div>
   </div>
+
+  <!-- ===================== LOCKER (loadout + outfit) ===================== -->
+  <div id="locker" hidden>
+    <div class="panel locker-panel">
+      <div class="panel-head">
+        <h2>LOCKER</h2>
+        <div class="seg" id="lockerTabs"><button data-tab="loadout" type="button">LOADOUT</button><button data-tab="outfit" type="button">OUTFIT</button></div>
+        <button class="btn btn-primary" id="btnLockerDone" type="button">DONE</button>
+      </div>
+      <div id="lockerLoadout">
+        <div id="loadoutGrid" class="locker-grid"></div>
+        <div id="loadoutStats" class="wstats"></div>
+        <p class="panel-foot">Loadouts are for Team Deathmatch. In Elimination you buy weapons from the armory each round. Mid-match, a new loadout arrives on your next spawn.</p>
+      </div>
+      <div id="lockerOutfit" hidden>
+        <div class="outfit-layout">
+          <div class="outfit-hero"><div id="outfitPreview"></div><div id="outfitName" class="outfit-name"></div><div id="outfitDesc" class="outfit-desc"></div></div>
+          <div id="outfitGrid" class="outfit-grid"></div>
+        </div>
+        <p class="panel-foot">You see your outfit on your sleeves, gloves and armband while you play.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="rotate" hidden><div class="click-card"><b>TURN YOUR PHONE</b><span>Dustfall plays in landscape. The match waits for you.</span></div></div>
 
   <div id="clickprompt" hidden><div class="click-card"><b>CLICK TO PLAY</b><span>The game captures your mouse. Press Esc to pause.</span></div></div>
   <div id="loading"><div class="load-title">DUSTFALL</div><div class="load-bar"><i></i></div><div id="loadMsg">Loading the 3D engine…</div></div>
@@ -577,12 +781,14 @@ const GFX = {
 // ------------------------------------------------------------------ settings
 const Settings = {
   sens: 1.0, fov: 82, volume: 0.7, quality: 1, invertY: false, showFps: false,
-  mode: 'tdm', diff: 1, teamSize: 5, loadout: 0,
-  KEYS: ['sens', 'fov', 'volume', 'quality', 'invertY', 'showFps', 'mode', 'diff', 'teamSize', 'loadout'],
+  mode: 'tdm', diff: 1, teamSize: 5, loadout: 0, outfit: 0, touch: 0,
+  loaded: false,
+  KEYS: ['sens', 'fov', 'volume', 'quality', 'invertY', 'showFps', 'mode', 'diff', 'teamSize', 'loadout', 'outfit', 'touch'],
   load() {
     try {
       const raw = localStorage.getItem('dustfall.settings');
       if (!raw) return;
+      this.loaded = true;
       const s = JSON.parse(raw);
       for (const k of this.KEYS) {
         if (s && s[k] !== undefined && typeof s[k] === typeof this[k]) this[k] = s[k];
@@ -605,6 +811,7 @@ const Input = {
   mdx: 0, mdy: 0, wheel: 0,
   fire: false, aim: false,
   fireClicked: false,
+  joyX: 0, joyY: 0, touchSprint: false, // analog stick from the touch controls
   mouseX: 0, mouseY: 0,
   fallback: false,               // play without pointer lock (lock refused by the browser)
   lockFails: 0,
@@ -619,7 +826,9 @@ const Input = {
   clear() {
     for (const k in this.keys) delete this.keys[k];
     this.fire = false; this.aim = false;
+    this.joyX = 0; this.joyY = 0; this.touchSprint = false;
     this.endFrame();
+    if (typeof TouchUI !== 'undefined') TouchUI.reset();
   },
 };
 
@@ -2268,6 +2477,28 @@ const COL = {
   olive: 0x4b5a45, oliveDark: 0x3c4838, silver: 0xa8acb0, silverDark: 0x878b8f, brass: 0xc9a14a, blade: 0xbfc3c7,
 };
 
+// Player outfits. In first person they colour the sleeves, cuffs, gloves and armband;
+// the rest feeds the locker preview.
+const OUTFITS = [
+  { name: 'VANGUARD STANDARD', desc: 'Issue blue-grey fatigues with the squad armband.',
+    helmet: 0x2c3e50, face: 0xc8956d, sleeve: 0x55606a, cuff: 0x3d464e, vest: 0x56708f, pants: 0x2f3d4f, glove: 0x26282a, boots: 0x1e1f21, accent: 0x3d8bff },
+  { name: 'DESERT RAIDER', desc: 'Sand-coloured kit that disappears against Old Town walls.',
+    helmet: 0xa88f63, face: 0xa8754f, sleeve: 0xb59c70, cuff: 0x8e7752, vest: 0x7d6a48, pants: 0x9c8660, glove: 0x5b4631, boots: 0x4a3a28, accent: 0xe2ab5a },
+  { name: 'WOODLAND', desc: 'Olive drab from the northern front. Old but reliable.',
+    helmet: 0x3f4a2f, face: 0xe0b48f, sleeve: 0x56653d, cuff: 0x414d2f, vest: 0x3b4630, pants: 0x4a5636, glove: 0x2b2b22, boots: 0x2a261d, accent: 0x9bc25b },
+  { name: 'NIGHT OPS', desc: 'All black with a balaclava. Green tritium armband.',
+    helmet: 0x1b1e22, face: 0x1a1c1f, sleeve: 0x24282d, cuff: 0x17191c, vest: 0x2c3238, pants: 0x1f2327, glove: 0x0f1012, boots: 0x0f1011, accent: 0x7bd88f, mask: true },
+  { name: 'ARCTIC', desc: 'Snow whites. Nobody told logistics this is a desert.',
+    helmet: 0xe6eaee, face: 0xe0b48f, sleeve: 0xd5dade, cuff: 0xa9b1b8, vest: 0xbfc6cc, pants: 0xc9cfd4, glove: 0x3a3f44, boots: 0x50565c, accent: 0x5aa9ff },
+  { name: 'URBAN GREY', desc: 'Concrete greys with a high-vis orange band.',
+    helmet: 0x4a4d52, face: 0x8d5a3b, sleeve: 0x6b6f75, cuff: 0x51545a, vest: 0x3a3d42, pants: 0x5a5e64, glove: 0x222326, boots: 0x1d1e20, accent: 0xff8a3d },
+  { name: 'CRIMSON ELITE', desc: 'Deep red sleeves and gold trim for the top of the scoreboard.',
+    helmet: 0x2a1a1a, face: 0xc8956d, sleeve: 0x7a2622, cuff: 0x561a17, vest: 0x2b2b2e, pants: 0x3a2222, glove: 0x161616, boots: 0x141414, accent: 0xe8c35a },
+  { name: 'NEON RUNNER', desc: 'Straight out of the arcade. Cyan cuffs, pink armband.',
+    helmet: 0x202544, face: 0xa8754f, sleeve: 0x232846, cuff: 0x3ef0ff, vest: 0x2b3060, pants: 0x1b1f3a, glove: 0x161827, boots: 0x111322, accent: 0xff4fd8 },
+];
+function currentOutfit() { return OUTFITS[Settings.outfit] || OUTFITS[0]; }
+
 // Parts: s = box size, cyl = [radius, length] along Z, p = position, r = rotation, a = animated sub-part name.
 const MODELS = {
   rifle: {
@@ -2479,18 +2710,23 @@ function buildViewGun(model, material) {
     const key = p.a || 'base';
     (buckets[key] || (buckets[key] = [])).push(colorizeGeo(partGeometry(p), p.c));
   }
-  // Gloves and sleeves.
-  const SLEEVE = 0x55606a, GLOVE = 0x26282a, CUFF = 0x3d464e;
+  // Gloves, sleeves and an armband, coloured by the chosen outfit.
+  const O = currentOutfit(), SLEEVE = O.sleeve, GLOVE = O.glove, CUFF = O.cuff, BAND = O.accent;
+  // Armband: a short, slightly thicker ring partway up a sleeve running from a to b.
+  const band = (ax, ay, az, bx, by, bz) => limbGeo(lerp(ax, bx, 0.4), lerp(ay, by, 0.4), lerp(az, bz, 0.4), lerp(ax, bx, 0.5), lerp(ay, by, 0.5), lerp(az, bz, 0.5), 0.095, 0.095, BAND);
   const rh = M.rh, arms = [];
   arms.push(colorizeGeo(new THREE.BoxGeometry(0.07, 0.075, 0.1).translate(rh[0] + 0.004, rh[1], rh[2] + 0.01), GLOVE));
   arms.push(limbGeo(rh[0] + 0.02, rh[1] - 0.03, rh[2] + 0.06, rh[0] + 0.13, rh[1] - 0.3, rh[2] + 0.36, 0.088, 0.088, SLEEVE));
   arms.push(limbGeo(rh[0] + 0.015, rh[1] - 0.02, rh[2] + 0.05, rh[0] + 0.035, rh[1] - 0.055, rh[2] + 0.1, 0.082, 0.082, CUFF));
+  arms.push(band(rh[0] + 0.02, rh[1] - 0.03, rh[2] + 0.06, rh[0] + 0.13, rh[1] - 0.3, rh[2] + 0.36));
   if (M.lh) {
     const lh = M.lh;
     arms.push(colorizeGeo(new THREE.BoxGeometry(0.075, 0.07, 0.1).translate(lh[0], lh[1] - 0.012, lh[2]), GLOVE));
     arms.push(limbGeo(lh[0] - 0.02, lh[1] - 0.04, lh[2] + 0.04, lh[0] - 0.24, lh[1] - 0.32, lh[2] + 0.3, 0.088, 0.088, SLEEVE));
+    arms.push(limbGeo(lh[0] - 0.018, lh[1] - 0.035, lh[2] + 0.035, lh[0] - 0.05, lh[1] - 0.075, lh[2] + 0.075, 0.082, 0.082, CUFF));
+    arms.push(band(lh[0] - 0.02, lh[1] - 0.04, lh[2] + 0.04, lh[0] - 0.24, lh[1] - 0.32, lh[2] + 0.3));
   }
-  if (buckets.pump) buckets.pump.push(...arms.splice(3)); // left hand rides the pump
+  if (buckets.pump) buckets.pump.push(...arms.splice(4)); // left hand rides the pump
   buckets.base.push(...arms);
   const parts = {};
   for (const key in buckets) {
@@ -2567,6 +2803,20 @@ const VM = {
       this.guns[model] = g;
     }
     return this.guns[model];
+  },
+
+  // Throw away the cached first-person guns so they are rebuilt with the current outfit.
+  rebuildArms() {
+    for (const k in this.guns) {
+      const g = this.guns[k];
+      this.root.remove(g.group);
+      for (const key in g.parts) g.parts[key].geometry.dispose();
+      if (g.dot) { g.dot.geometry.dispose(); g.dot.material.dispose(); }
+    }
+    this.guns = {};
+    this.gun = null;
+    if (this.model && Game.state === 'play') this.setModel(this.model, 0.3);
+    else this.model = '';
   },
 
   setModel(model, drawDur) {
@@ -2997,8 +3247,9 @@ function updatePlayer(dt) {
   const frozen = P.frozen;
   let f = frozen ? 0 : (K.KeyW || K.ArrowUp ? 1 : 0) - (K.KeyS || K.ArrowDown ? 1 : 0);
   let st = frozen ? 0 : (K.KeyD || K.ArrowRight ? 1 : 0) - (K.KeyA || K.ArrowLeft ? 1 : 0);
+  if (!frozen && (Input.joyX || Input.joyY)) { f = clamp(f - Input.joyY, -1, 1); st = clamp(st + Input.joyX, -1, 1); }
   const wantCrouch = !!K.KeyC;
-  const wantSprint = !!(K.ShiftLeft || K.ShiftRight) && f > 0 && P.crouchT < 0.3 && !Input.aim && !Input.fire && P.meleeT <= 0 && P.throwT <= 0;
+  const wantSprint = (!!(K.ShiftLeft || K.ShiftRight) || Input.touchSprint) && f > 0 && P.crouchT < 0.3 && !Input.aim && !Input.fire && P.meleeT <= 0 && P.throwT <= 0;
   P.sprinting = wantSprint && (P.onGround || P.sprinting);
   if (P.sprinting) P.sprintOutT = 0.14; else P.sprintOutT -= dt;
 
@@ -3013,8 +3264,9 @@ function updatePlayer(dt) {
   // ---- wish velocity
   let wx = -Math.sin(P.yaw) * f + Math.cos(P.yaw) * st;
   let wz = -Math.cos(P.yaw) * f - Math.sin(P.yaw) * st;
+  // Only normalise when longer than 1, so a half-pushed touch stick walks slower.
   const wl = Math.hypot(wx, wz);
-  if (wl > 0) { wx /= wl; wz /= wl; }
+  if (wl > 1) { wx /= wl; wz /= wl; }
   const adsK = smoothstep(0, 1, P.ads);
   let speed = MOVE.base * def.speed * (P.sprinting ? MOVE.sprint : 1) * lerp(1, MOVE.crouch, P.crouchT) * lerp(1, MOVE.ads, adsK);
   const rate = P.onGround ? 12 : 2.2;
@@ -4002,13 +4254,14 @@ const HUD = {
 
     // hint line
     let hint = '', warn = false;
+    const touch = TouchUI.active;
     if (alive && def && def.type === 'gun') {
       if (P.reloading) hint = 'RELOADING';
-      else if (w.mag === 0 && w.reserve === 0) { hint = 'NO AMMO · PRESS 2 FOR YOUR SIDEARM'; warn = true; }
-      else if (w.mag <= Math.ceil(def.mag * 0.25) && w.reserve > 0) { hint = 'PRESS R TO RELOAD'; warn = true; }
+      else if (w.mag === 0 && w.reserve === 0) { hint = touch ? 'NO AMMO · SWITCH TO YOUR SIDEARM' : 'NO AMMO · PRESS 2 FOR YOUR SIDEARM'; warn = true; }
+      else if (w.mag <= Math.ceil(def.mag * 0.25) && w.reserve > 0) { hint = touch ? 'TAP RELOAD' : 'PRESS R TO RELOAD'; warn = true; }
     }
-    if (!hint && Game.mode === 'elim' && Game.canBuy() && !this.buyOpen) hint = 'PRESS B TO OPEN THE ARMORY';
-    if (!hint && Game.mode === 'tdm' && alive && now - (P.spawnT || 0) < 4) hint = 'PRESS L TO CHANGE LOADOUT';
+    if (!hint && Game.mode === 'elim' && Game.canBuy() && !this.buyOpen) hint = touch ? 'TAP BUY TO OPEN THE ARMORY' : 'PRESS B TO OPEN THE ARMORY';
+    if (!hint && Game.mode === 'tdm' && alive && now - (P.spawnT || 0) < 4) hint = touch ? 'TAP GUNS TO CHANGE LOADOUT' : 'PRESS L TO CHANGE LOADOUT';
     this.set('hint', e.hintline, hint);
     this.cls(e.hintline, 'warn', warn);
 
@@ -4641,6 +4894,318 @@ function explode(x, y, z, owner, def) {
 </script>
 <script>
 'use strict';
+/* Dustfall — touch controls (floating move stick, drag-to-look, on-screen buttons) and the
+   locker where the player picks a loadout and an outfit. Touch input is fed into the same
+   Input state the keyboard and mouse use, so the player code does not care where it came from. */
+
+const TouchUI = {
+  active: false, el: null, stick: null, knob: null,
+  moveId: null, mox: 0, moy: 0,
+  lookId: null, lx: 0, ly: 0,
+  fireId: null, fx: 0, fy: 0,
+  aim: false, aimHold: false, crouch: false, portrait: false,
+  pressed: new Map(), cache: {},
+  R: 58,          // stick radius in px
+  LOOK: 1.7,      // touch pixels are worth more than mouse counts
+
+  detect() {
+    if (Settings.touch === 1) return true;
+    if (Settings.touch === 2) return false;
+    const mm = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
+    return mm('(pointer: coarse)') || (navigator.maxTouchPoints > 0 && !mm('(any-pointer: fine)'));
+  },
+
+  init() {
+    this.el = $('touch');
+    this.stick = $('tStick');
+    this.knob = this.stick.firstElementChild;
+    const el = this.el;
+    el.addEventListener('pointerdown', (e) => this.down(e));
+    el.addEventListener('pointermove', (e) => this.move(e));
+    el.addEventListener('pointerup', (e) => this.up(e));
+    el.addEventListener('pointercancel', (e) => this.up(e));
+    el.addEventListener('contextmenu', (e) => e.preventDefault());
+    window.addEventListener('resize', () => this.checkOrientation());
+    this.refresh();
+  },
+
+  refresh() {
+    this.active = this.detect();
+    document.body.classList.toggle('touch', this.active);
+    if (!this.active) { this.reset(); this.el.hidden = true; }
+    this.checkOrientation();
+  },
+
+  checkOrientation() {
+    this.portrait = this.active && window.innerHeight > window.innerWidth;
+    const show = this.portrait && Game.state === 'play';
+    const r = $('rotate');
+    if (r && r.hidden === show) r.hidden = !show;
+  },
+
+  enterFullscreen() {
+    const d = document.documentElement;
+    if (document.fullscreenElement || !d.requestFullscreen) return;
+    try {
+      d.requestFullscreen({ navigationUI: 'hide' }).then(() => {
+        if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {});
+      }).catch(() => {});
+    } catch (e) { /* not allowed here */ }
+  },
+
+  down(e) {
+    if (Game.state !== 'play' || App.overlay) return;
+    e.preventDefault();
+    Sfx.init(); Sfx.resume();
+    try { this.el.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    const btn = e.target.closest('[data-act]');
+    if (btn) {
+      if (btn.dataset.act === 'fire') {
+        this.fireId = e.pointerId; this.fx = e.clientX; this.fy = e.clientY;
+        Input.fire = true; Input.fireClicked = true;
+        btn.classList.add('on');
+        return;
+      }
+      btn.classList.add('press');
+      this.pressed.set(e.pointerId, btn);
+      this.tap(btn.dataset.act, btn);
+      return;
+    }
+    if (e.clientX < window.innerWidth * 0.42 && this.moveId === null) {
+      this.moveId = e.pointerId; this.mox = e.clientX; this.moy = e.clientY;
+      this.stick.style.left = e.clientX + 'px';
+      this.stick.style.top = e.clientY + 'px';
+      this.stick.classList.add('live');
+      this.knob.style.transform = '';
+    } else if (this.lookId === null) {
+      this.lookId = e.pointerId; this.lx = e.clientX; this.ly = e.clientY;
+    }
+  },
+
+  move(e) {
+    const id = e.pointerId;
+    if (id === this.moveId) {
+      let dx = e.clientX - this.mox, dy = e.clientY - this.moy;
+      const d = Math.hypot(dx, dy), R = this.R;
+      Input.touchSprint = d > R * 1.35 && dy < -Math.abs(dx);
+      if (d > R) { dx = (dx / d) * R; dy = (dy / d) * R; }
+      this.knob.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px)';
+      this.stick.classList.toggle('sprint', Input.touchSprint);
+      const nx = dx / R, ny = dy / R, mag = Math.hypot(nx, ny);
+      if (mag < 0.12) { Input.joyX = 0; Input.joyY = 0; }
+      else { const k = (mag - 0.12) / 0.88 / mag; Input.joyX = nx * k; Input.joyY = ny * k; }
+    } else if (id === this.lookId) {
+      Input.mdx += (e.clientX - this.lx) * this.LOOK;
+      Input.mdy += (e.clientY - this.ly) * this.LOOK;
+      this.lx = e.clientX; this.ly = e.clientY;
+    } else if (id === this.fireId) {
+      Input.mdx += (e.clientX - this.fx) * this.LOOK;
+      Input.mdy += (e.clientY - this.fy) * this.LOOK;
+      this.fx = e.clientX; this.fy = e.clientY;
+    }
+  },
+
+  up(e) {
+    const id = e.pointerId;
+    if (id === this.moveId) this.releaseStick();
+    if (id === this.lookId) this.lookId = null;
+    if (id === this.fireId) {
+      this.fireId = null;
+      Input.fire = false;
+      this.el.querySelector('.t-fire').classList.remove('on');
+    }
+    const b = this.pressed.get(id);
+    if (b) {
+      b.classList.remove('press');
+      this.pressed.delete(id);
+      if (b.dataset.act === 'aim' && this.aimHold) { this.aimHold = false; Input.aim = false; }
+    }
+  },
+
+  releaseStick() {
+    this.moveId = null;
+    Input.joyX = 0; Input.joyY = 0; Input.touchSprint = false;
+    this.stick.classList.remove('live', 'sprint');
+    this.stick.style.left = ''; this.stick.style.top = '';
+    this.knob.style.transform = '';
+  },
+
+  setAim(on) { this.aim = on; Input.aim = on; },
+
+  tap(act, btn) {
+    switch (act) {
+      case 'jump': Input.pressed.Space = true; break;
+      case 'reload': Input.pressed.KeyR = true; break;
+      case 'nade': Input.pressed.KeyG = true; break;
+      case 'crouch': this.crouch = !this.crouch; Input.keys.KeyC = this.crouch; break;
+      case 'aim': {
+        const w = curW();
+        // With the knife the aim button is a held heavy stab, not a toggle.
+        if (w && w.def.type === 'melee') { this.aimHold = true; Input.aim = true; }
+        else this.setAim(!this.aim);
+        break;
+      }
+      case 'slot': {
+        const s = +btn.dataset.slot;
+        if (P.weapons[s] && s !== P.slot) { this.setAim(false); Input.pressed['Digit' + (s + 1)] = true; }
+        break;
+      }
+      case 'board': HUD.showBoard(!HUD.boardOpen); break;
+      case 'pause': pauseGame(); break;
+      case 'ctx':
+        if (Game.mode === 'elim') { if (HUD.openBuy()) { App.overlay = 'buy'; Input.clear(); } }
+        else { App.overlay = 'class'; HUD.openClass(); Input.clear(); }
+        break;
+    }
+  },
+
+  // Let go of everything (pause, overlays, focus loss). Called from Input.clear().
+  reset() {
+    this.lookId = null; this.fireId = null;
+    this.aim = false; this.aimHold = false; this.crouch = false;
+    if (!this.el) return;
+    if (this.moveId !== null || this.stick.classList.contains('live')) this.releaseStick();
+    this.pressed.forEach((b) => b.classList.remove('press'));
+    this.pressed.clear();
+    this.el.querySelectorAll('.on').forEach((b) => b.classList.remove('on'));
+  },
+
+  update() {
+    this.checkOrientation();
+    const show = Game.state === 'play' && !this.portrait;
+    if (this.el.hidden === show) { this.el.hidden = !show; if (!show) this.reset(); }
+    if (!show) return;
+    const c = this.cache, set = (k, v, fn) => { if (c[k] !== v) { c[k] = v; fn(v); } };
+    set('dead', !P.alive, (v) => this.el.classList.toggle('dead', v));
+    if (!P.alive && (this.aim || this.crouch)) { this.setAim(false); this.crouch = false; Input.keys.KeyC = false; }
+    const w = curW();
+    if (w && w.def.type === 'melee' && this.aim) this.setAim(false);
+    set('aim', Input.aim && !this.aimHold, (v) => $('tAim').classList.toggle('on', v));
+    set('crouch', this.crouch, (v) => $('tCrouch').classList.toggle('on', v));
+    set('nade', P.grenades, (v) => { $('tNadeN').textContent = v; $('tNade').classList.toggle('off', v <= 0); });
+    const slots = this.el.querySelectorAll('.t-slot');
+    for (let s = 0; s < 3; s++) {
+      const ws = P.weapons[s], el = slots[s];
+      const name = ws ? ws.def.short : '—';
+      const ammo = ws && ws.def.type === 'gun' ? ws.mag + ' / ' + ws.reserve : '';
+      set('sn' + s, name, (v) => { el.firstElementChild.textContent = v; });
+      set('sa' + s, ammo, (v) => { el.lastElementChild.textContent = v; });
+      set('sc' + s, P.slot === s, (v) => el.classList.toggle('cur', v));
+      set('se' + s, !ws, (v) => el.classList.toggle('empty', v));
+    }
+    const ctx = Game.mode === 'elim' ? (Game.canBuy() ? 'BUY' : '') : 'GUNS';
+    set('ctx', ctx, (v) => { const b = $('tCtx'); b.textContent = v; b.hidden = !v; });
+  },
+};
+
+const Locker = {
+  tab: 'loadout', from: null,
+
+  init() {
+    const lg = $('loadoutGrid');
+    LOADOUTS.forEach((l, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'lo-card';
+      b.dataset.i = i;
+      b.innerHTML = '<span class="cn">' + l.name + '</span><span class="cw">' + WEAPONS[l.primary].name + '<br>' + WEAPONS[l.secondary].name + ' · FRAG</span><span class="cd">' + l.desc + '</span>';
+      b.addEventListener('click', () => this.pickLoadout(i));
+      lg.appendChild(b);
+    });
+    const og = $('outfitGrid');
+    OUTFITS.forEach((o, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'of-card';
+      b.dataset.i = i;
+      b.innerHTML = outfitSVG(o) + '<span>' + o.name + '</span>';
+      b.addEventListener('click', () => this.pickOutfit(i));
+      og.appendChild(b);
+    });
+    document.querySelectorAll('#lockerTabs button').forEach((b) => b.addEventListener('click', () => { Sfx.ui(); this.show(b.dataset.tab); }));
+    $('btnLockerDone').addEventListener('click', () => this.close());
+  },
+
+  open(tab, from) {
+    Sfx.init();
+    this.from = from;
+    if (from === 'pause') setOverlay('pausemenu', false);
+    App.overlay = 'locker';
+    this.show(tab);
+    setOverlay('locker', true);
+  },
+  close() {
+    Settings.save();
+    setOverlay('locker', false);
+    if (this.from === 'pause') { App.overlay = 'pause'; setOverlay('pausemenu', true); }
+    else App.overlay = null;
+    syncMenu();
+  },
+  show(tab) {
+    this.tab = tab;
+    $('lockerLoadout').hidden = tab !== 'loadout';
+    $('lockerOutfit').hidden = tab !== 'outfit';
+    document.querySelectorAll('#lockerTabs button').forEach((b) => b.classList.toggle('sel', b.dataset.tab === tab));
+    this.refresh();
+  },
+  pickLoadout(i) {
+    Settings.loadout = i; Settings.save(); Sfx.ui();
+    if (Game.state === 'play' && Game.mode === 'tdm' && P.alive && Game.time - (P.spawnT || 0) < 6) playerReissueLoadout();
+    this.refresh();
+  },
+  pickOutfit(i) {
+    Settings.outfit = i; Settings.save(); Sfx.ui();
+    VM.rebuildArms();
+    this.refresh();
+  },
+  refresh() {
+    document.querySelectorAll('.lo-card').forEach((b) => b.classList.toggle('sel', +b.dataset.i === Settings.loadout));
+    document.querySelectorAll('.of-card').forEach((b) => b.classList.toggle('sel', +b.dataset.i === Settings.outfit));
+    const l = LOADOUTS[Settings.loadout] || LOADOUTS[0];
+    const p = WEAPONS[l.primary], s = WEAPONS[l.secondary];
+    const bar = (label, v) => '<div class="wstat">' + label + '<i><b style="width:' + Math.round(clamp(v, 0.04, 1) * 100) + '%"></b></i></div>';
+    const per = p.damage * (p.pellets || 1);
+    $('loadoutStats').innerHTML = '<h3>' + p.name + '</h3>' +
+      bar('DAMAGE', per / 120) + bar('FIRE RATE', 60 / p.rate / 900) + bar('RANGE', (p.falloff - 0.5) / 0.5) + bar('MOBILITY', (p.speed - 0.8) / 0.28) +
+      '<div class="wnote">' + p.mag + ' rounds · ' + (p.auto ? 'full auto' : p.pump ? 'pump action' : p.bolt ? 'bolt action' : 'semi auto') + (p.scope ? ' · scoped' : '') +
+      ' &nbsp;|&nbsp; Sidearm: ' + s.name + ' &nbsp;|&nbsp; Knife and 1 frag grenade</div>';
+    const o = currentOutfit();
+    $('outfitPreview').innerHTML = outfitSVG(o);
+    $('outfitName').textContent = o.name;
+    $('outfitDesc').textContent = o.desc;
+  },
+};
+
+function hexCss(c) { return '#' + c.toString(16).padStart(6, '0'); }
+
+// Front-view soldier drawn from an outfit's colours (locker preview only).
+function outfitSVG(o) {
+  const c = (k) => hexCss(o[k]);
+  const eyes = o.mask
+    ? '<rect x="46" y="45" width="28" height="9" rx="3" fill="#c8956d"/><rect x="50" y="47.5" width="6" height="4" rx="1" fill="#16181b"/><rect x="64" y="47.5" width="6" height="4" rx="1" fill="#16181b"/>'
+    : '<rect x="50" y="48" width="6" height="4" rx="1" fill="#16181b"/><rect x="64" y="48" width="6" height="4" rx="1" fill="#16181b"/><rect x="54" y="57" width="12" height="2.5" rx="1" fill="rgba(0,0,0,0.3)"/>';
+  return '<svg viewBox="0 0 120 200" aria-hidden="true">' +
+    '<ellipse cx="60" cy="194" rx="36" ry="5" fill="rgba(0,0,0,0.35)"/>' +
+    '<rect x="39" y="128" width="19" height="52" rx="3" fill="' + c('pants') + '"/><rect x="62" y="128" width="19" height="52" rx="3" fill="' + c('pants') + '"/>' +
+    '<rect x="40.5" y="150" width="16" height="9" rx="2" fill="' + c('vest') + '"/><rect x="63.5" y="150" width="16" height="9" rx="2" fill="' + c('vest') + '"/>' +
+    '<rect x="37" y="178" width="22" height="12" rx="3" fill="' + c('boots') + '"/><rect x="61" y="178" width="22" height="12" rx="3" fill="' + c('boots') + '"/>' +
+    '<rect x="17" y="74" width="17" height="46" rx="7" fill="' + c('sleeve') + '"/><rect x="86" y="74" width="17" height="46" rx="7" fill="' + c('sleeve') + '"/>' +
+    '<rect x="17" y="91" width="17" height="7" fill="' + c('accent') + '"/><rect x="86" y="91" width="17" height="7" fill="' + c('accent') + '"/>' +
+    '<rect x="17" y="111" width="17" height="7" fill="' + c('cuff') + '"/><rect x="86" y="111" width="17" height="7" fill="' + c('cuff') + '"/>' +
+    '<rect x="16" y="117" width="19" height="15" rx="5" fill="' + c('glove') + '"/><rect x="85" y="117" width="19" height="15" rx="5" fill="' + c('glove') + '"/>' +
+    '<rect x="33" y="70" width="54" height="62" rx="8" fill="' + c('sleeve') + '"/>' +
+    '<rect x="37" y="74" width="46" height="46" rx="5" fill="' + c('vest') + '"/>' +
+    '<rect x="41" y="99" width="11" height="13" rx="2" fill="rgba(0,0,0,0.25)"/><rect x="54.5" y="99" width="11" height="13" rx="2" fill="rgba(0,0,0,0.25)"/><rect x="68" y="99" width="11" height="13" rx="2" fill="rgba(0,0,0,0.25)"/>' +
+    '<rect x="33" y="124" width="54" height="7" rx="2" fill="#1b1a18"/><rect x="56" y="124" width="8" height="7" fill="' + c('accent') + '"/>' +
+    '<rect x="52" y="60" width="16" height="13" fill="' + c('face') + '"/>' +
+    '<rect x="44" y="32" width="32" height="32" rx="9" fill="' + c('face') + '"/>' + eyes +
+    '<path d="M40 42 Q60 12 80 42 Z" fill="' + c('helmet') + '"/><rect x="38" y="39" width="44" height="7" rx="2" fill="' + c('helmet') + '"/>' +
+    '<rect x="45" y="30" width="30" height="3" rx="1.5" fill="' + c('accent') + '" opacity="0.85"/>' +
+    '</svg>';
+}
+</script>
+<script>
+'use strict';
 /* Dustfall — boot: renderer, sky, lights, menus, settings, input routing and the main loop. */
 
 const App = { lastT: 0, menuT: 0, overlay: null, settingsFrom: null, booted: false };
@@ -4745,6 +5310,7 @@ function onResize() {
 function setOverlay(id, on) { const e = $(id); if (e) e.hidden = !on; }
 
 function requestPlayLock() {
+  if (TouchUI.active) { Input.fallback = true; setOverlay('clickprompt', false); return; }
   Lock.request();
   setTimeout(() => {
     if (Game.state === 'play' && !App.overlay && !Lock.isLocked() && !Input.fallback) setOverlay('clickprompt', true);
@@ -4756,6 +5322,7 @@ function startMatch() {
   setOverlay('mainmenu', false); setOverlay('endscreen', false); setOverlay('pausemenu', false); setOverlay('settings', false);
   document.body.classList.add('playing');
   App.overlay = null;
+  if (TouchUI.active) { Input.fallback = true; TouchUI.enterFullscreen(); }
   Game.start(Settings.mode, Settings.diff, Settings.teamSize);
   requestPlayLock();
 }
@@ -4806,7 +5373,7 @@ function openSettings(from) {
   if (from === 'pause') setOverlay('pausemenu', false);
   App.overlay = 'settings';
   const set = (id, v) => { $(id).value = v; };
-  set('setSens', Settings.sens); set('setFov', Settings.fov); set('setVol', Settings.volume); set('setQuality', Settings.quality);
+  set('setSens', Settings.sens); set('setFov', Settings.fov); set('setVol', Settings.volume); set('setQuality', Settings.quality); set('setTouch', Settings.touch);
   $('setInvert').checked = Settings.invertY; $('setFps').checked = Settings.showFps;
   refreshSettingOutputs();
   setOverlay('settings', true);
@@ -4827,6 +5394,12 @@ function syncMenu() {
   document.querySelectorAll('.mode-card').forEach(b => b.classList.toggle('sel', b.dataset.mode === Settings.mode));
   document.querySelectorAll('#segDiff button').forEach(b => b.classList.toggle('sel', +b.dataset.v === Settings.diff));
   document.querySelectorAll('#segSize button').forEach(b => b.classList.toggle('sel', +b.dataset.v === Settings.teamSize));
+  const l = LOADOUTS[Settings.loadout] || LOADOUTS[0], o = currentOutfit();
+  $('pickLoadoutName').textContent = l.name;
+  $('pickLoadoutSub').textContent = WEAPONS[l.primary].name + ' · ' + WEAPONS[l.secondary].name;
+  $('pickOutfitName').textContent = o.name;
+  $('pickOutfitSwatch').style.background = 'linear-gradient(135deg, ' + hexCss(o.sleeve) + ' 0 50%, ' + hexCss(o.accent) + ' 50% 100%)';
+  $('touchNote').hidden = !TouchUI.active;
 }
 
 function bindUI() {
@@ -4838,6 +5411,11 @@ function bindUI() {
   $('btnResume').addEventListener('click', resumeGame);
   $('btnPauseSettings').addEventListener('click', () => openSettings('pause'));
   $('btnPauseLoadout').addEventListener('click', () => { setOverlay('pausemenu', false); Game.paused = false; App.overlay = 'class'; HUD.openClass(); });
+  $('btnPauseOutfit').addEventListener('click', () => Locker.open('outfit', 'pause'));
+  $('pickLoadout').addEventListener('click', () => Locker.open('loadout', 'menu'));
+  $('pickOutfit').addEventListener('click', () => Locker.open('outfit', 'menu'));
+  document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => closeOverlayAndResume(b.dataset.close)));
+  $('setTouch').addEventListener('change', e => { Settings.touch = +e.target.value; TouchUI.refresh(); syncMenu(); });
   $('btnQuit').addEventListener('click', toMenu);
   $('btnRematch').addEventListener('click', startMatch);
   $('btnEndMenu').addEventListener('click', toMenu);
@@ -4849,8 +5427,6 @@ function bindUI() {
   $('setQuality').addEventListener('change', e => { Settings.quality = +e.target.value; applyQuality(); });
   $('setInvert').addEventListener('change', e => { Settings.invertY = e.target.checked; });
   $('setFps').addEventListener('change', e => { Settings.showFps = e.target.checked; $('fps').hidden = !Settings.showFps; });
-  const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches && !window.matchMedia('(pointer: fine)').matches;
-  $('touchNote').hidden = !coarse;
   $('fps').hidden = !Settings.showFps;
 }
 
@@ -4891,7 +5467,7 @@ function bindInput() {
   });
   document.addEventListener('mousemove', (e) => {
     Input.mouseX = e.clientX; Input.mouseY = e.clientY;
-    if (Game.state !== 'play' || App.overlay) return;
+    if (Game.state !== 'play' || App.overlay || TouchUI.active) return;
     if (Lock.isLocked() || Input.fallback) {
       Input.mdx += clamp(e.movementX || 0, -400, 400);
       Input.mdy += clamp(e.movementY || 0, -400, 400);
@@ -4899,7 +5475,7 @@ function bindInput() {
   });
   document.addEventListener('mousedown', (e) => {
     Sfx.init(); Sfx.resume();
-    if (Game.state !== 'play' || App.overlay) return;
+    if (Game.state !== 'play' || App.overlay || TouchUI.active) return;
     if (!Lock.isLocked()) {
       Lock.request();
       if (!Input.fallback) return;
@@ -4908,6 +5484,7 @@ function bindInput() {
     if (e.button === 2) Input.aim = true;
   });
   document.addEventListener('mouseup', (e) => {
+    if (TouchUI.active) return;
     if (e.button === 0) Input.fire = false;
     if (e.button === 2) Input.aim = false;
   });
@@ -4941,7 +5518,8 @@ function frame(now) {
   if (!(dt > 0)) dt = 1 / 60;
   dt = Math.min(dt, 0.05);
   const playing = Game.state === 'play';
-  const running = playing && !Game.paused && (Lock.isLocked() || Input.fallback || App.overlay === 'buy' || App.overlay === 'class');
+  if (TouchUI.active) TouchUI.update();
+  const running = playing && !Game.paused && !TouchUI.portrait && (Lock.isLocked() || Input.fallback || App.overlay === 'buy' || App.overlay === 'class');
   if (running) {
     Game.update(dt);
     if (Game.state === 'play') HUD.update(dt);
@@ -4974,6 +5552,7 @@ function boot() {
   if (!window.THREE) { showFatal('The 3D engine could not load. Check your internet connection, then reload the page.'); return; }
   try {
     Settings.load();
+    if (!Settings.loaded && TouchUI.detect()) Settings.quality = 0; // phones start on the fastest graphics
     initGraphics();
     buildTextures();
     buildMap();
@@ -4983,6 +5562,8 @@ function boot() {
     VM.init();
     VM.root.visible = false;
     HUD.init();
+    TouchUI.init();
+    Locker.init();
     bindUI();
     bindInput();
     syncMenu();
