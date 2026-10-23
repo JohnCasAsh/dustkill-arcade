@@ -1,0 +1,44 @@
+{
+  "rules": {
+    "lobbies": {
+      ".read": true,
+      ".indexOn": ["ping"],
+      "$code": {
+        ".write": "newData.exists() || data.child('ping').val() < now - 120000",
+        ".validate": "$code.matches(/^[A-Z2-9]{5}$/) && newData.hasChildren(['n', 'p', 's', 'ping', 'max']) && newData.child('n').isString() && newData.child('n').val().length <= 16 && newData.child('p').isNumber() && newData.child('s').isString() && newData.child('s').val().length <= 8 && newData.child('max').isNumber() && newData.child('ping').isNumber() && newData.child('ping').val() <= now + 5000"
+      }
+    },
+    "rooms": {
+      "$code": {
+        ".read": "$code.matches(/^[A-Z2-9]{5}$/)",
+        ".write": "!newData.exists() && data.child('meta/ping').val() < now - 120000",
+        "meta": {
+          ".write": "newData.exists()",
+          ".validate": "newData.hasChildren(['host', 'state', 'ping']) && newData.child('host').isString() && newData.child('host').val().length <= 32 && newData.child('state').isString() && newData.child('state').val().length <= 8 && newData.child('ping').isNumber() && newData.child('ping').val() <= now + 5000"
+        },
+        "players": {
+          "$pid": {
+            ".write": true,
+            ".validate": "$pid.length <= 32 && newData.hasChildren(['n', 't']) && newData.child('n').isString() && newData.child('n').val().length <= 16 && (newData.child('t').val() === 0 || newData.child('t').val() === 1)"
+          }
+        },
+        "live": {
+          "$pid": {
+            ".write": true,
+            ".validate": "$pid.length <= 32 && newData.hasChildren(['p', 'a'])"
+          }
+        },
+        "bots": { ".write": true },
+        "botInfo": { ".write": true },
+        "score": { ".write": true },
+        "ev": {
+          ".indexOn": ["ts"],
+          "$eid": {
+            ".write": "!data.exists() || (!newData.exists() && data.child('ts').val() < now - 60000)",
+            ".validate": "newData.hasChildren(['k', 'ts']) && newData.child('k').isString() && newData.child('k').val().length <= 8 && newData.child('ts').isNumber()"
+          }
+        }
+      }
+    }
+  }
+}
